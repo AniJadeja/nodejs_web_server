@@ -1,4 +1,5 @@
 const express = require("express");
+const { get } = require("http");
 const app = express();
 const path = require("path");
 const PORT = process.env.PORT || 3500;
@@ -16,6 +17,14 @@ app.get("/new-page(.html)?", (req, res) => {
 app.get("/old-page(.html)?", (req, res) => {
   
     res.redirect( 301, "new-page.html");
+});
+
+
+app.get("/hello(.html)?", (req, res,next) => {
+    console.log("hello world from middleware");
+    next(); 
+},(req, res) => {
+    res.sendFile(path.join(__dirname, "views", "index.html"));
 });
 
 app.get('/*', (req, res) => {
