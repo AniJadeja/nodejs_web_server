@@ -6,6 +6,7 @@ const fsPromises = require('fs').promises;
 
 const logEvents = require('./logEvents');
 const EventEmitter = require('events');
+const { ca } = require('date-fns/locale');
 
 class Emitter extends EventEmitter { };
 
@@ -13,6 +14,19 @@ class Emitter extends EventEmitter { };
 const myEmitter = new Emitter();
 
 const PORT = process.env.PORT || 3500;
+
+const serveFile = async (filePath, contentType, response) => {
+    try {
+        const data = await fsPromises.readFile(filePath, 'utf-8');
+        response.writeHead(200, { 'Content-Type': contentType });
+        response.end(data);
+    }
+    catch (err) {
+        console.log(err);
+        response.statusCode = 500;
+        response.end();
+    }
+}
 
 const server = http.createServer((req, res) => {
     console.log(req.url, req.method);
@@ -56,6 +70,25 @@ const server = http.createServer((req, res) => {
         filePath += '.html';
     }
 
+    const fileExists = fs.existsSync(filePath);
+
+    if (fileExists) {
+        serveFile(filePath, contentType, res);
+        
+    } else {
+        switch(path.parse(filePath)){
+            case 'old-page.html':
+                res.writeHead(301, {'Location': '/new-page.html'});
+                res.end();
+                break;
+            case 'www-page.html':
+                res.writeHead(301, {'Location': '/'});
+                res.end();
+                break;
+            default:
+                serveFile(path.join(__dirname, 'views', '404.html'), 'text/html', res);
+        }
+    }
 });
 
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
