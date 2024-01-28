@@ -27,9 +27,26 @@ app.get("/hello(.html)?", (req, res,next) => {
     res.sendFile(path.join(__dirname, "views", "index.html"));
 });
 
+//chained functions
+
+const one = (req, res, next) => {
+    console.log("one");
+    next();
+}
+const two = (req, res, next) => {
+    console.log("two");
+    next();
+}
+const three = (req, res, next) => {
+    console.log("three");
+    res.send("done");
+}
+
 app.get('/*', (req, res) => {
     res.status(404).sendFile(path.join(__dirname, "views", "404.html"));
 }); 
+
+app.get("/chained(.html)?", [one, two, three]);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
