@@ -17,9 +17,19 @@ const PORT = process.env.PORT || 3500;
 
 const serveFile = async (filePath, contentType, response) => {
     try {
-        const data = await fsPromises.readFile(filePath, 'utf-8');
-        response.writeHead(200, { 'Content-Type': contentType });
-        response.end(data);
+        const rawData = await fsPromises.readFile(
+            filePath, 
+            !contentType.includes('image') ? 'utf-8' : ''
+            );
+        const data = contentType === 'application/json' 
+                    ? JSON.parse(rawData) : rawData;
+        response.writeHead(
+            filePath.includes('404.html') ? 404 :200, 
+            { 'Content-Type': contentType });
+        response.end(
+            contentType === 'application/json' 
+            ? JSON.stringify(data) : data
+        );
     }
     catch (err) {
         console.log(err);
@@ -60,7 +70,7 @@ const server = http.createServer((req, res) => {
     let filePath = 
         contentType === 'text/html' && req.url === '/'
         ? path.join(__dirname, 'views', 'index.html')
-        : contentType === 'text/html1' && req.url.slice(-1) === '/'
+        : contentType === 'text/html' && req.url.slice(-1) === '/'
             ? path.join(__dirname, 'views', req.url ,'index.html')
             : contentType === 'text/html' 
                 ? path.join(__dirname, 'views', req.url)
