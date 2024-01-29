@@ -5,6 +5,13 @@ const path = require("path");
 const PORT = process.env.PORT || 3500;
 
 
+// get encoded data from the url
+app.use(express.urlencoded({ extended: false }));
+// get json data from the body
+app.use(express.json());
+// serve static files
+app.use(express.static(path.join(__dirname, "public")));
+
 app.get("^/$ | index(.html)?", (req, res) => {
     //the path must start with / and end with / or /index.html
     // where .html is optional
