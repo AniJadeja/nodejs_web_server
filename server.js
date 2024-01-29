@@ -1,9 +1,13 @@
 const express = require("express");
-const { get } = require("http");
 const app = express();
 const path = require("path");
+const { logger } = require("./middlewares/logEvents");
 const PORT = process.env.PORT || 3500;
 
+
+
+//custom middleware
+app.use(logger);
 
 // get encoded data from the url
 app.use(express.urlencoded({ extended: false }));
